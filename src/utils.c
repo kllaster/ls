@@ -1,0 +1,103 @@
+#include "utils.h"
+
+size_t kl_strlen(const char *str)
+{
+    size_t size = 0;
+    while (str[size] != '\0')
+        size++;
+    return size;
+}
+
+inline void print_str(char *str)
+{
+    write(STDIN_FILENO, str, kl_strlen(str));
+}
+
+int kl_strncmp(const char *str1, const char *str2, size_t n)
+{
+    size_t i;
+
+    i = 0;
+    while ((str1[i] || str2[i]) && n > i)
+    {
+        if ((unsigned char)str1[i] != (unsigned char)str2[i])
+            return ((unsigned char)str1[i] - (unsigned char)str2[i]);
+        ++i;
+    }
+    return (0);
+}
+
+bool kl_strequal(char *str1, char *str2)
+{
+    size_t len1;
+
+    len1 = kl_strlen(str1);
+    if (len1 == kl_strlen(str2) && kl_strncmp(str1, str2, len1) == 0)
+        return (true);
+    return (false);
+}
+
+char *kl_strdup(const char *str)
+{
+    char *res;
+    char *p;
+    size_t size;
+
+    size = (size_t)kl_strlen((char *)str) + 1;
+    res = malloc(size * sizeof(char));
+    if (res == NULL)
+        return (0);
+    p = res;
+    while (*str)
+    {
+        *res = *str;
+        str++;
+        res++;
+    }
+    *res = '\0';
+    return (p);
+}
+
+void *kl_memmove(void *dest, const void *source, size_t count)
+{
+    unsigned char *p1;
+    unsigned char *p2;
+
+    p1 = (unsigned char *)dest;
+    p2 = (unsigned char *)source;
+    if (dest == source)
+        return (dest);
+    if (dest > source)
+    {
+        while (count--)
+            p1[count] = p2[count];
+    }
+    else
+    {
+        size_t i = -1;
+        while (++i != count)
+            p1[i] = p2[i];
+    }
+    return (dest);
+}
+
+char *kl_strjoin(const char *s1, const char *s2)
+{
+    size_t size;
+    size_t len1;
+    size_t len2;
+    char *res;
+
+    if (!s1)
+        return (0);
+    len1 = kl_strlen((char *)s1);
+    len2 = kl_strlen((char *)s2);
+    size = len1 + len2 + 1;
+    res = malloc(size * sizeof(char));
+    if (res == NULL)
+        return (NULL);
+    kl_memmove((void *)res, (const void *)s1, len1);
+    kl_memmove((void *)(res + len1), (const void *)s2, len2);
+    *(res + size - 1) = 0;
+    return (res);
+}
