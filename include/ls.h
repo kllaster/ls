@@ -24,16 +24,11 @@ typedef struct directory t_directory;
 struct directory
 {
     DIR *dir_stream;
+    char *name;
     char *path;
-    t_directory *next;
-};
-
-//---
-
-struct dir_info
-{
-    size_t total_size;
+    size_t total_blocks;
     struct entry_info *entrys;
+    t_directory *next;
 };
 
 typedef struct entry_info t_file_info;
@@ -41,6 +36,7 @@ typedef struct entry_info t_file_info;
 struct entry_info
 {
     char *name;
+    bool is_hidden;
     struct stat stat;
     t_file_info *next;
 };
@@ -49,5 +45,8 @@ struct entry_info
 
 void execute_ls(char *dir_path, t_options options);
 void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options);
+
+void print_simple(struct directory *dir, t_options options, bool show_path);
+void print_long_format(struct directory *dir, t_options options);
 
 #endif

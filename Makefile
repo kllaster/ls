@@ -26,6 +26,7 @@ INC_DIR			= include
 SRCS			= src/main.c\
 					src/parser.c\
 					src/execute_ls.c\
+					src/print.c\
 					src/utils.c\
 
 BIN_PATH		= $(BIN_DIR)/$(NAME)

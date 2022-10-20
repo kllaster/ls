@@ -13,6 +13,67 @@ inline void print_str(char *str)
     write(STDIN_FILENO, str, kl_strlen(str));
 }
 
+int kl_numlen(int n)
+{
+    int i;
+
+    i = 0;
+    while (n)
+    {
+        n /= 10;
+        ++i;
+    }
+    return (i);
+}
+
+static char *kl_getres(char *res, unsigned int num, int len, int flag)
+{
+    if (!num)
+        res[0] = '0';
+    else
+    {
+        while (num)
+        {
+            res[--len] = (num % 10) + '0';
+            num /= 10;
+        }
+        if (flag)
+            res[0] = '-';
+    }
+    return (res);
+}
+
+char *kl_itoa(int n)
+{
+    char *res;
+    int flag;
+    int len;
+    unsigned int num;
+
+    len = kl_numlen(n);
+    flag = 0;
+    if (n < 0 || !n)
+    {
+        if (n < 0)
+            flag = 1;
+        len += 1;
+        n *= -1;
+    }
+    num = (unsigned int)n;
+    res = malloc((len + 1) * sizeof(char));
+    if (res == NULL)
+        return (NULL);
+    res[len] = 0;
+    return (kl_getres(res, num, len, flag));
+}
+
+void print_num(int num)
+{
+    char *str = kl_itoa(num);
+    print_str(str);
+    free(str);
+}
+
 int kl_strncmp(const char *str1, const char *str2, size_t n)
 {
     size_t i;
