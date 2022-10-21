@@ -15,5 +15,6 @@ bool kl_strequal(char *str1, char *str2);
 int kl_strncmp(const char *str1, const char *str2, size_t n);
 void print_num(int num);
 void print_str(char *str);
+void print_char(char c);
 
 #endif

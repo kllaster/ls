@@ -183,7 +183,7 @@ void execute_ls(char *dir_path, t_options options)
         }
 
         if (option_long_format)
-            print_long_format(dir, options);
+            print_long_format(dir, options, !is_first_dir);
         else
             print_simple(dir, options, !is_first_dir);
 

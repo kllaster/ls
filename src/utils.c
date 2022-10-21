@@ -13,6 +13,11 @@ inline void print_str(char *str)
     write(STDIN_FILENO, str, kl_strlen(str));
 }
 
+inline void print_char(char c)
+{
+    write(STDIN_FILENO, &c, 1);
+}
+
 int kl_numlen(int n)
 {
     int i;
