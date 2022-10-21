@@ -1,6 +1,9 @@
 #ifndef KL_LS_H
 # define KL_LS_H
 
+# include <pwd.h>
+# include <grp.h>
+# include <time.h>
 # include <stdbool.h>
 # include <stdlib.h>
 # include <dirent.h>
@@ -36,9 +39,9 @@ typedef struct entry_info t_file_info;
 struct entry_info
 {
     char *name;
-    bool is_hidden;
-    struct stat stat;
     t_file_info *next;
+    struct stat stat;
+    bool is_hidden;
 };
 
 //---

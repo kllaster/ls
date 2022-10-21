@@ -67,6 +67,59 @@ static void print_other_permission(mode_t st_mode)
         print_char('-');
 }
 
+static inline void print_date(time_t time)
+{
+    char *date = ctime(&time);
+
+    date = (char *)date + 4;
+    date[12] = '\0';
+    print_str(date);
+}
+
+static inline void print_long_format_entry(struct entry_info *entry)
+{
+    struct stat *stat = &entry->stat;
+
+    print_char(get_letter_mode(stat->st_mode));
+    print_user_permission(stat->st_mode);
+    print_group_permission(stat->st_mode);
+    print_other_permission(stat->st_mode);
+
+    print_str_literal(" ");
+
+    print_num(stat->st_nlink);
+
+    print_str_literal(" ");
+
+    struct passwd *pw = getpwuid(stat->st_uid);
+    if (pw != NULL)
+        print_str(pw->pw_name);
+    else
+        print_num((int)stat->st_uid);
+
+    print_str_literal(" ");
+
+    struct group *gr = getgrgid(stat->st_gid);
+    if (gr != NULL)
+        print_str(gr->gr_name);
+    else
+        print_num((int)stat->st_gid);
+
+    print_str_literal(" ");
+
+    print_num((int)stat->st_size);
+
+    print_str_literal(" ");
+
+    print_date(stat->st_mtime);
+
+    print_str_literal(" ");
+
+    print_str(entry->name);
+
+    print_str_literal("\n");
+}
+
 void print_long_format(struct directory *dir, t_options options, bool show_path)
 {
     if (show_path)
@@ -86,16 +139,7 @@ void print_long_format(struct directory *dir, t_options options, bool show_path)
     while (it)
     {
         if (!it->is_hidden || show_all_option)
-        {
-            struct stat *stat = &it->stat;
-
-            print_char(get_letter_mode(stat->st_mode));
-            print_user_permission(stat->st_mode);
-            print_group_permission(stat->st_mode);
-            print_other_permission(stat->st_mode);
-
-            print_str_literal("\n");
-        }
+            print_long_format_entry(it);
         it = it->next;
     }
 }

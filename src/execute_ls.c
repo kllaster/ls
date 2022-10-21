@@ -75,6 +75,7 @@ static inline void remove_directory(struct directory *dir)
 
     closedir(dir->dir_stream);
     free(dir->path);
+    free(dir->name);
     free(dir);
 }
 
