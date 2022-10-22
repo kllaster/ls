@@ -76,7 +76,7 @@ static inline void print_date(time_t time)
     print_str(date);
 }
 
-static inline void print_long_format_entry(struct entry_info *entry)
+static inline void print_long_format_entry(struct directory *dir, struct entry_info *entry)
 {
     struct stat *stat = &entry->stat;
 
@@ -85,27 +85,25 @@ static inline void print_long_format_entry(struct entry_info *entry)
     print_group_permission(stat->st_mode);
     print_other_permission(stat->st_mode);
 
-    print_str_literal(" ");
+    print_repeat_char(' ', (dir->max_hard_links_len - kl_numlen(stat->st_nlink)) + 2);
 
     print_num(stat->st_nlink);
 
-    print_str_literal(" ");
+    print_repeat_char(' ', (dir->max_owner_name_len - entry->owner_name_len) + 1);
 
-    struct passwd *pw = getpwuid(stat->st_uid);
-    if (pw != NULL)
-        print_str(pw->pw_name);
+    if (entry->owner_name != NULL)
+        print_str(entry->owner_name);
     else
         print_num((int)stat->st_uid);
 
-    print_str_literal(" ");
+    print_repeat_char(' ', (dir->max_group_name_len - entry->group_name_len) + 2);
 
-    struct group *gr = getgrgid(stat->st_gid);
-    if (gr != NULL)
-        print_str(gr->gr_name);
+    if (entry->group_name != NULL)
+        print_str(entry->group_name);
     else
         print_num((int)stat->st_gid);
 
-    print_str_literal(" ");
+    print_repeat_char(' ', (dir->max_size_len - kl_numlen(stat->st_size)) + 2);
 
     print_num((int)stat->st_size);
 
@@ -120,7 +118,7 @@ static inline void print_long_format_entry(struct entry_info *entry)
     print_str_literal("\n");
 }
 
-void print_long_format(struct directory *dir, t_options options, bool show_path)
+void print_long_format(struct directory *dir, bool show_path)
 {
     if (show_path)
     {
@@ -134,20 +132,17 @@ void print_long_format(struct directory *dir, t_options options, bool show_path)
     print_str_literal("\n");
 
     struct entry_info *it = dir->entrys;
-    bool show_all_option = options & OPTION_ALL;
 
     while (it)
     {
-        if (!it->is_hidden || show_all_option)
-            print_long_format_entry(it);
+        print_long_format_entry(dir, it);
         it = it->next;
     }
 }
 
-void print_simple(struct directory *dir, t_options options, bool show_path)
+void print_simple(struct directory *dir, bool show_path)
 {
     struct entry_info *it = dir->entrys;
-    bool show_all_option = options & OPTION_ALL;
 
     if (show_path)
     {
@@ -159,12 +154,9 @@ void print_simple(struct directory *dir, t_options options, bool show_path)
     size_t count_entrys = 0;
     while (it)
     {
-        if (!it->is_hidden || show_all_option)
-        {
-            print_str(it->name);
-            print_str(" ");
-            count_entrys++;
-        }
+        print_str(it->name);
+        print_str(" ");
+        count_entrys++;
         it = it->next;
     }
     if (count_entrys)

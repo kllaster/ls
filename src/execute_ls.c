@@ -29,6 +29,10 @@ static struct directory *add_directory(struct directory *dirs, char *name, char 
     new_dir->next = NULL;
     new_dir->entrys = NULL;
     new_dir->total_blocks = 0;
+    new_dir->max_size_len = 0;
+    new_dir->max_owner_name_len = 0;
+    new_dir->max_group_name_len = 0;
+    new_dir->max_hard_links_len = 0;
 
     if (dirs)
     {
@@ -103,7 +107,42 @@ static inline void add_entry(struct directory *dir, char *entry_name, char *entr
 
     entry_info->next = NULL;
     entry_info->name = kl_strdup(entry_name);
-    entry_info->is_hidden = entry_info->name[0] == '.' ? true : false;
+    entry_info->owner_name = NULL;
+    entry_info->group_name = NULL;
+
+    {
+        size_t len = kl_numlen(entry_info->stat.st_nlink);
+        if (len > dir->max_hard_links_len)
+            dir->max_hard_links_len = len;
+    }
+
+    struct passwd *pw = getpwuid(entry_info->stat.st_uid);
+    if (pw != NULL)
+    {
+        entry_info->owner_name = pw->pw_name;
+
+        size_t len = kl_strlen(pw->pw_name);
+        if (len > dir->max_owner_name_len)
+            dir->max_owner_name_len = len;
+        entry_info->owner_name_len = len;
+    }
+
+    struct group *gr = getgrgid(entry_info->stat.st_gid);
+    if (gr != NULL)
+    {
+        entry_info->group_name = gr->gr_name;
+
+        size_t len = kl_strlen(gr->gr_name);
+        if (len > dir->max_group_name_len)
+            dir->max_group_name_len = len;
+        entry_info->group_name_len = len;
+    }
+
+    {
+        size_t len = kl_numlen(entry_info->stat.st_size);
+        if (len > dir->max_size_len)
+            dir->max_size_len = len;
+    }
 
     dir->total_blocks += entry_info->stat.st_blocks;
 
@@ -171,11 +210,13 @@ void execute_ls(char *dir_path, t_options options)
 
         while ((entry = readdir(dir->dir_stream)) != NULL)
         {
+            if (!(entry->d_name[0] != '.' || option_all))
+                continue;
+
             char *path = create_path(dir->path, entry->d_name);
             add_entry(dir, entry->d_name, path);
 
             if (option_recursive && entry->d_type == DT_DIR
-                && (entry->d_name[0] != '.' || option_all)
                 && !kl_strequal(".", entry->d_name)
                 && !kl_strequal("..", entry->d_name))
             {
@@ -184,9 +225,9 @@ void execute_ls(char *dir_path, t_options options)
         }
 
         if (option_long_format)
-            print_long_format(dir, options, !is_first_dir);
+            print_long_format(dir, !is_first_dir);
         else
-            print_simple(dir, options, !is_first_dir);
+            print_simple(dir, !is_first_dir);
 
         remove_directory(dir);
         dirs = add_new_dirs_to_end(dirs, new_dirs);

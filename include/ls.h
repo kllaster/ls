@@ -29,9 +29,13 @@ struct directory
     DIR *dir_stream;
     char *name;
     char *path;
-    size_t total_blocks;
     struct entry_info *entrys;
     t_directory *next;
+    size_t max_hard_links_len;
+    size_t max_owner_name_len;
+    size_t max_group_name_len;
+    size_t max_size_len;
+    size_t total_blocks;
 };
 
 typedef struct entry_info t_file_info;
@@ -39,9 +43,12 @@ typedef struct entry_info t_file_info;
 struct entry_info
 {
     char *name;
+    char *owner_name;
+    char *group_name;
     t_file_info *next;
     struct stat stat;
-    bool is_hidden;
+    size_t owner_name_len;
+    size_t group_name_len;
 };
 
 //---
@@ -49,7 +56,7 @@ struct entry_info
 void execute_ls(char *dir_path, t_options options);
 void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options);
 
-void print_simple(struct directory *dir, t_options options, bool show_path);
-void print_long_format(struct directory *dir, t_options options, bool show_path);
+void print_simple(struct directory *dir, bool show_path);
+void print_long_format(struct directory *dir, bool show_path);
 
 #endif
