@@ -56,6 +56,8 @@ struct entry_info
 void execute_ls(char *dir_path, t_options options);
 void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options);
 
+void add_entry(struct directory *dir, char *entry_name, char *entry_path);
+
 void print_simple(struct directory *dir, bool show_path);
 void print_long_format(struct directory *dir, bool show_path);
 

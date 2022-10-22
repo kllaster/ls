@@ -105,7 +105,7 @@ static inline void print_long_format_entry(struct directory *dir, struct entry_i
 
     print_repeat_char(' ', (dir->max_size_len - kl_numlen(stat->st_size)) + 2);
 
-    print_num((int)stat->st_size);
+    print_num(stat->st_size);
 
     print_str_literal(" ");
 

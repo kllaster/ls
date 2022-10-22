@@ -1,5 +1,4 @@
 #include "ls.h"
-#include <printf.h>
 
 void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options)
 {
@@ -94,89 +93,9 @@ static inline char *create_path(char *path, char *dir)
     return res;
 }
 
-static inline void add_entry(struct directory *dir, char *entry_name, char *entry_path)
-{
-    struct entry_info *entry_info = malloc(sizeof(struct entry_info));
-
-    if (stat(entry_path, &entry_info->stat) < 0)
-    {
-        // TODO: Print error?
-        free(entry_info);
-        return;
-    }
-
-    entry_info->next = NULL;
-    entry_info->name = kl_strdup(entry_name);
-    entry_info->owner_name = NULL;
-    entry_info->group_name = NULL;
-
-    {
-        size_t len = kl_numlen(entry_info->stat.st_nlink);
-        if (len > dir->max_hard_links_len)
-            dir->max_hard_links_len = len;
-    }
-
-    struct passwd *pw = getpwuid(entry_info->stat.st_uid);
-    if (pw != NULL)
-    {
-        entry_info->owner_name = pw->pw_name;
-
-        size_t len = kl_strlen(pw->pw_name);
-        if (len > dir->max_owner_name_len)
-            dir->max_owner_name_len = len;
-        entry_info->owner_name_len = len;
-    }
-
-    struct group *gr = getgrgid(entry_info->stat.st_gid);
-    if (gr != NULL)
-    {
-        entry_info->group_name = gr->gr_name;
-
-        size_t len = kl_strlen(gr->gr_name);
-        if (len > dir->max_group_name_len)
-            dir->max_group_name_len = len;
-        entry_info->group_name_len = len;
-    }
-
-    {
-        size_t len = kl_numlen(entry_info->stat.st_size);
-        if (len > dir->max_size_len)
-            dir->max_size_len = len;
-    }
-
-    dir->total_blocks += entry_info->stat.st_blocks;
-
-    if (dir->entrys)
-    {
-        struct entry_info *it = dir->entrys;
-        struct entry_info *prev = NULL;
-
-        while (it)
-        {
-            if (it->name[0] > entry_name[0])
-            {
-                if (prev)
-                    prev->next = entry_info;
-                else
-                    dir->entrys = entry_info;
-                entry_info->next = it;
-                break;
-            }
-            prev = it;
-            it = it->next;
-        }
-
-        if (it == NULL)
-        {
-            prev->next = entry_info;
-        }
-    }
-    else
-        dir->entrys = entry_info;
-}
-
-static inline struct directory *
-add_new_dirs_to_end(struct directory *dirs, struct directory *new_dirs)
+static inline struct directory *add_new_dirs_to_end(
+    struct directory *dirs, struct directory *new_dirs
+)
 {
     if (new_dirs)
     {

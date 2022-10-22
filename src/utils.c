@@ -31,7 +31,7 @@ int kl_numlen(long long n)
     return (i);
 }
 
-static char *kl_getres(char *res, unsigned int num, int len, int flag)
+static char *kl_getres(char *res, unsigned long long num, int len, int flag)
 {
     if (!num)
         res[0] = '0';
@@ -48,12 +48,12 @@ static char *kl_getres(char *res, unsigned int num, int len, int flag)
     return (res);
 }
 
-char *kl_itoa(int n)
+char *kl_itoa(long long n)
 {
     char *res;
     int flag;
     int len;
-    unsigned int num;
+    unsigned long long num;
 
     len = kl_numlen(n);
     flag = 0;
@@ -72,7 +72,7 @@ char *kl_itoa(int n)
     return (kl_getres(res, num, len, flag));
 }
 
-void print_num(int num)
+void print_num(long long num)
 {
     char *str = kl_itoa(num);
     print_str(str);
