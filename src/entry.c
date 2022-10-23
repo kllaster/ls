@@ -94,12 +94,25 @@ void add_entry_in_directory(struct directory *dir, struct entry_info *entry_info
         dir->entrys = entry_info;
 }
 
+void set_link_info(struct entry_info *entry_info, const char *path)
+{
+    ssize_t size;
+    char linked_rel_path[PATH_MAX];
+
+    if ((size = readlink(path, linked_rel_path, PATH_MAX)) == -1)
+        return;
+    linked_rel_path[size] = '\0';
+
+    entry_info->linked_name = kl_strdup(linked_rel_path);
+}
+
 struct entry_info *create_entry_info(struct directory *dir, char *entry_name, struct stat *s_stat)
 {
     struct entry_info *entry_info = malloc(sizeof(struct entry_info));
 
     entry_info->next = NULL;
     entry_info->name = kl_strdup(entry_name);
+    entry_info->linked_name = NULL;
     entry_info->owner_name = NULL;
     entry_info->group_name = NULL;
     entry_info->stat = *s_stat;

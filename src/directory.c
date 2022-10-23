@@ -25,7 +25,7 @@ struct stat *get_entry_stat(const char *path)
 {
     struct stat *s_stat = malloc(sizeof(struct stat));
 
-    if (stat(path, s_stat) < 0)
+    if (lstat(path, s_stat) < 0)
     {
         print_str_literal("ls: ");
         print_str(path);
@@ -112,6 +112,7 @@ void remove_directory(struct directory *dir)
         next = it->next;
 
         free(it->name);
+        free(it->linked_name);
         free(it);
 
         it = next;

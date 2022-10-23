@@ -18,6 +18,12 @@ inline void print_char(char c)
     write(STDOUT_FILENO, &c, 1);
 }
 
+void print_repeat_char(char c, size_t len)
+{
+    for (size_t i = 0; i < len; i++)
+        print_char(c);
+}
+
 int kl_numlen(long long n)
 {
     int i;
@@ -182,10 +188,4 @@ char *kl_strjoin(const char *s1, const char *s2)
     kl_memmove((void *)(res + len1), (const void *)s2, len2);
     *(res + size - 1) = 0;
     return (res);
-}
-
-void print_repeat_char(char c, size_t len)
-{
-    for (size_t i = 0; i < len; i++)
-        print_char(c);
 }

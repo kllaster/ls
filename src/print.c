@@ -115,6 +115,12 @@ static inline void print_long_format_entry(struct directory *dir, struct entry_i
 
     print_str(entry->name);
 
+    if (entry->linked_name)
+    {
+        print_str_literal(" -> ");
+        print_str(entry->linked_name);
+    }
+
     print_str_literal("\n");
 }
 

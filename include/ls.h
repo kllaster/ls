@@ -4,10 +4,11 @@
 # include <pwd.h>
 # include <grp.h>
 # include <time.h>
-# include <stdbool.h>
 # include <stdlib.h>
 # include <dirent.h>
+# include <stdbool.h>
 # include <sys/stat.h>
+# include <sys/syslimits.h>
 # include "utils.h"
 
 # define OPTION_NONE            0b00000000
@@ -46,6 +47,7 @@ struct entry_info
 {
     struct stat stat;
     char *name;
+    char *linked_name;
     char *owner_name;
     char *group_name;
     t_file_info *next;
@@ -69,6 +71,7 @@ struct entry_info *create_entry_info(struct directory *dir, char *entry_name, st
 void add_entry_in_directory(
     struct directory *dir, struct entry_info *entry_info, t_options options
 );
+void set_link_info(struct entry_info *entry_info, const char *path);
 
 void print_simple(struct directory *dir, bool show_path);
 void print_long_format(struct directory *dir, bool show_path);
