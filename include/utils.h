@@ -18,6 +18,8 @@ int kl_numlen(long long n);
 void print_num(long long num);
 void print_str(const char *str);
 void print_char(char c);
+void print_err_str(const char *str);
+void print_err_char(char c);
 void print_repeat_char(char c, size_t len);
 
 #endif

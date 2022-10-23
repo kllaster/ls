@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "ls.h"
 
 typedef long (t_dir_cmp)(struct directory *, struct directory *);
@@ -27,9 +28,8 @@ struct stat *get_entry_stat(const char *path)
 
     if (lstat(path, s_stat) < 0)
     {
-        print_str_literal("ls: ");
-        print_str(path);
-        print_str_literal(": No such file or directory\n");
+        print_err_str("ls: ");
+        perror(path);
         return NULL;
     }
     return s_stat;
@@ -42,9 +42,8 @@ struct directory *create_directory_info(char *name, char *dir_path, struct stat 
 
     if ((dir = opendir(dir_path)) == NULL)
     {
-        print_str_literal("ls: ");
-        print_str(dir_path);
-        print_str_literal(": No such file or directory\n");
+        print_err_str("ls: ");
+        perror(dir_path);
         return NULL;
     }
 

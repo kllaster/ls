@@ -16,6 +16,13 @@ static t_options get_options_by_str(const char *str)
             options |= OPTION_SORT_BY_TIME;
         else if (str[i] == 'r')
             options |= OPTION_REVERSE_SORT;
+        else
+        {
+            print_err_str("ls: ");
+            print_err_str("invalid option -");
+            print_err_char(str[i]);
+            print_err_char('\n');
+        }
     }
     return options;
 }

@@ -13,6 +13,16 @@ inline void print_str(const char *str)
     write(STDOUT_FILENO, str, kl_strlen(str));
 }
 
+inline void print_err_str(const char *str)
+{
+    write(STDERR_FILENO, str, kl_strlen(str));
+}
+
+inline void print_err_char(char c)
+{
+    write(STDERR_FILENO, &c, 1);
+}
+
 inline void print_char(char c)
 {
     write(STDOUT_FILENO, &c, 1);
