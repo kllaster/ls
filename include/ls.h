@@ -26,6 +26,7 @@ typedef struct directory t_directory;
 
 struct directory
 {
+    struct stat *stat;
     DIR *dir_stream;
     char *name;
     char *path;
@@ -43,11 +44,11 @@ typedef struct entry_info t_file_info;
 
 struct entry_info
 {
+    struct stat stat;
     char *name;
     char *owner_name;
     char *group_name;
     t_file_info *next;
-    struct stat stat;
     size_t owner_name_len;
     size_t group_name_len;
 };
@@ -56,8 +57,18 @@ struct entry_info
 
 void dir_browsing(struct directory *dirs, t_options options, bool print_dir_path);
 
-struct directory *add_directory(struct directory *dirs, char *name, char *dir_path);
-void add_entry(struct directory *dir, char *entry_name, char *entry_path);
+struct stat *get_entry_stat(const char *path);
+
+struct directory *create_directory_info(char *name, char *dir_path, struct stat *stat);
+struct directory *add_dir_in_list(
+    struct directory *dirs, struct directory *new_dir, t_options options
+);
+void remove_directory(struct directory *dir);
+
+struct entry_info *create_entry_info(struct directory *dir, char *entry_name, struct stat *s_stat);
+void add_entry_in_directory(
+    struct directory *dir, struct entry_info *entry_info, t_options options
+);
 
 void print_simple(struct directory *dir, bool show_path);
 void print_long_format(struct directory *dir, bool show_path);

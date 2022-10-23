@@ -1,6 +1,41 @@
 #include "ls.h"
 
-struct directory *add_directory(struct directory *dirs, char *name, char *dir_path)
+typedef long (t_dir_cmp)(struct directory *, struct directory *);
+
+long dir_name_cmp(struct directory *dir1, struct directory *dir2)
+{
+    return kl_strcmp(dir1->name, dir2->name);
+}
+
+long dir_time_cmp(struct directory *dir1, struct directory *dir2)
+{
+    long res;
+
+    res = dir2->stat->st_mtimespec.tv_sec - dir1->stat->st_mtimespec.tv_sec;
+    if (res != 0)
+        return res;
+
+    res = dir2->stat->st_mtimespec.tv_nsec - dir1->stat->st_mtimespec.tv_nsec;
+    if (res != 0)
+        return res;
+    return dir_name_cmp(dir1, dir2);
+}
+
+struct stat *get_entry_stat(const char *path)
+{
+    struct stat *s_stat = malloc(sizeof(struct stat));
+
+    if (stat(path, s_stat) < 0)
+    {
+        print_str_literal("ls: ");
+        print_str(path);
+        print_str_literal(": No such file or directory\n");
+        return NULL;
+    }
+    return s_stat;
+}
+
+struct directory *create_directory_info(char *name, char *dir_path, struct stat *stat)
 {
     DIR *dir;
     struct directory *new_dir;
@@ -10,10 +45,11 @@ struct directory *add_directory(struct directory *dirs, char *name, char *dir_pa
         print_str_literal("ls: ");
         print_str(dir_path);
         print_str_literal(": No such file or directory\n");
-        return dirs;
+        return NULL;
     }
 
     new_dir = malloc(sizeof(struct directory));
+    new_dir->stat = stat;
     new_dir->name = kl_strdup(name);
     new_dir->path = dir_path;
     new_dir->dir_stream = dir;
@@ -25,6 +61,19 @@ struct directory *add_directory(struct directory *dirs, char *name, char *dir_pa
     new_dir->max_owner_name_len = 0;
     new_dir->max_group_name_len = 0;
     new_dir->max_hard_links_len = 0;
+    return new_dir;
+}
+
+struct directory *add_dir_in_list(
+    struct directory *dirs, struct directory *new_dir, t_options options
+)
+{
+    t_dir_cmp *dir_cmp;
+
+    if (options & OPTION_SORT_BY_TIME)
+        dir_cmp = dir_time_cmp;
+    else
+        dir_cmp = dir_name_cmp;
 
     if (dirs)
     {
@@ -33,7 +82,7 @@ struct directory *add_directory(struct directory *dirs, char *name, char *dir_pa
 
         while (it)
         {
-            if (kl_strcmp(it->name, name) > 0)
+            if (dir_cmp(it, new_dir) > 0)
             {
                 if (prev)
                     prev->next = new_dir;
@@ -46,16 +95,14 @@ struct directory *add_directory(struct directory *dirs, char *name, char *dir_pa
             it = it->next;
         }
         if (it == NULL)
-        {
             prev->next = new_dir;
-        }
     }
     else
         dirs = new_dir;
     return dirs;
 }
 
-static inline void remove_directory(struct directory *dir)
+void remove_directory(struct directory *dir)
 {
     struct entry_info *it = dir->entrys;
     struct entry_info *next;
@@ -73,10 +120,12 @@ static inline void remove_directory(struct directory *dir)
     closedir(dir->dir_stream);
     free(dir->path);
     free(dir->name);
+    free(dir->stat);
     free(dir);
 }
 
-static inline char *create_path(char *path, char *dir)
+
+static char *create_path(char *path, char *dir)
 {
     char *res;
     char *path_tmp;
@@ -87,9 +136,7 @@ static inline char *create_path(char *path, char *dir)
     return res;
 }
 
-static inline struct directory *add_new_dirs_to_end(
-    struct directory *dirs, struct directory *new_dirs
-)
+static struct directory *add_new_dirs_to_end(struct directory *dirs, struct directory *new_dirs)
 {
     if (new_dirs)
     {
@@ -126,6 +173,15 @@ void dir_browsing(
             if (!(entry->d_name[0] != '.' || option_all))
                 continue;
 
+            char *path = create_path(dir->path, entry->d_name);
+            struct stat *s_stat = get_entry_stat(path);
+
+            if (s_stat == NULL)
+            {
+                free(path);
+                continue;
+            }
+
             if (option_long_format == false)
             {
                 size_t len = kl_strlen(entry->d_name);
@@ -133,17 +189,21 @@ void dir_browsing(
                     dir->max_name_len = len;
             }
 
-            char *path = create_path(dir->path, entry->d_name);
-            add_entry(dir, entry->d_name, path);
+            struct entry_info *entry_info = create_entry_info(dir, entry->d_name, s_stat);
+            add_entry_in_directory(dir, entry_info, options);
 
             if (option_recursive && entry->d_type == DT_DIR
                 && !kl_strequal(".", entry->d_name)
                 && !kl_strequal("..", entry->d_name))
             {
-                new_dirs = add_directory(new_dirs, entry->d_name, path);
+                struct directory *new_dir = create_directory_info(entry->d_name, path, s_stat);
+                new_dirs = add_dir_in_list(new_dirs, new_dir, options);
             }
             else
+            {
                 free(path);
+                free(s_stat);
+            }
         }
 
         if (is_first_dir == false)

@@ -16,7 +16,7 @@ int kl_strncmp(const char *str1, const char *str2, size_t n);
 int kl_strcmp(const char *str1, const char *str2);
 int kl_numlen(long long n);
 void print_num(long long num);
-void print_str(char *str);
+void print_str(const char *str);
 void print_char(char c);
 void print_repeat_char(char c, size_t len);
 

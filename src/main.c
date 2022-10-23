@@ -2,19 +2,32 @@
 
 static inline void execute_ls(char *dir_path, t_options options)
 {
-    struct directory *dirs = add_directory(NULL, dir_path, dir_path);
+    struct directory *dir;
+    struct stat *s_stat = get_entry_stat(dir_path);
 
-    dir_browsing(dirs, options, false);
+    if (s_stat == NULL)
+    {
+        free(dir_path);
+        return;
+    }
+
+    dir = create_directory_info(dir_path, dir_path, s_stat);
+    dir_browsing(dir, options, false);
 }
 
 static inline void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options)
 {
+    struct stat *s_stat;
     struct directory *dirs = NULL;
 
     for (size_t i = 0; i < count_dirs; i++)
     {
+        s_stat = get_entry_stat(dir_paths[i]);
+        if (s_stat == NULL)
+            continue;
         char *path = kl_strdup(dir_paths[i]);
-        dirs = add_directory(dirs, path, path);
+        struct directory *dir = create_directory_info(path, path, s_stat);
+        dirs = add_dir_in_list(dirs, dir, options);
     }
     dir_browsing(dirs, options, true);
 }

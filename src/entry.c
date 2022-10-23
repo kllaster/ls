@@ -1,5 +1,26 @@
 #include "ls.h"
 
+typedef long (t_entry_cmp)(struct entry_info *, struct entry_info *);
+
+long entry_name_cmp(struct entry_info *entry1, struct entry_info *entry2)
+{
+    return kl_strcmp(entry1->name, entry2->name);
+}
+
+long entry_time_cmp(struct entry_info *entry1, struct entry_info *entry2)
+{
+    long res;
+
+    res = entry2->stat.st_mtimespec.tv_sec - entry1->stat.st_mtimespec.tv_sec;
+    if (res != 0)
+        return res;
+
+    res = entry2->stat.st_mtimespec.tv_nsec - entry1->stat.st_mtimespec.tv_nsec;
+    if (res != 0)
+        return res;
+    return entry_name_cmp(entry1, entry2);
+}
+
 static inline void add_max_fields_len(struct directory *dir, struct entry_info *entry_info)
 {
     {
@@ -37,17 +58,23 @@ static inline void add_max_fields_len(struct directory *dir, struct entry_info *
     }
 }
 
-static inline void add_entry_in_directory(struct directory *dir, struct entry_info *entry_info)
+void add_entry_in_directory(struct directory *dir, struct entry_info *entry_info, t_options options)
 {
+    t_entry_cmp *entry_cmp;
+
+    if (options & OPTION_SORT_BY_TIME)
+        entry_cmp = entry_time_cmp;
+    else
+        entry_cmp = entry_name_cmp;
+
     if (dir->entrys)
     {
         struct entry_info *it = dir->entrys;
         struct entry_info *prev = NULL;
-        char *name = entry_info->name;
 
         while (it)
         {
-            if (kl_strcmp(it->name, name) > 0)
+            if (entry_cmp(it, entry_info) > 0)
             {
                 if (prev)
                     prev->next = entry_info;
@@ -67,25 +94,19 @@ static inline void add_entry_in_directory(struct directory *dir, struct entry_in
         dir->entrys = entry_info;
 }
 
-void add_entry(struct directory *dir, char *entry_name, char *entry_path)
+struct entry_info *create_entry_info(struct directory *dir, char *entry_name, struct stat *s_stat)
 {
     struct entry_info *entry_info = malloc(sizeof(struct entry_info));
-
-    if (stat(entry_path, &entry_info->stat) < 0)
-    {
-        // TODO: Print error?
-        free(entry_info);
-        return;
-    }
 
     entry_info->next = NULL;
     entry_info->name = kl_strdup(entry_name);
     entry_info->owner_name = NULL;
     entry_info->group_name = NULL;
+    entry_info->stat = *s_stat;
 
     add_max_fields_len(dir, entry_info);
 
     dir->total_blocks += entry_info->stat.st_blocks;
 
-    add_entry_in_directory(dir, entry_info);
+    return entry_info;
 }

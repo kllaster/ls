@@ -8,7 +8,7 @@ size_t kl_strlen(const char *str)
     return size;
 }
 
-inline void print_str(char *str)
+inline void print_str(const char *str)
 {
     write(STDOUT_FILENO, str, kl_strlen(str));
 }
