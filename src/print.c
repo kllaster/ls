@@ -122,7 +122,6 @@ void print_long_format(struct directory *dir, bool show_path)
 {
     if (show_path)
     {
-        print_str_literal("\n");
         print_str(dir->path);
         print_str(":\n");
     }
@@ -146,7 +145,6 @@ void print_simple(struct directory *dir, bool show_path)
 
     if (show_path)
     {
-        print_str_literal("\n");
         print_str(dir->path);
         print_str(":\n");
     }

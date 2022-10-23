@@ -1,13 +1,5 @@
 #include "ls.h"
 
-void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options)
-{
-    // TODO
-    (void)dir_paths;
-    (void)count_dirs;
-    (void)options;
-}
-
 static struct directory *add_directory(struct directory *dirs, char *name, char *dir_path)
 {
     DIR *dir;
@@ -40,7 +32,7 @@ static struct directory *add_directory(struct directory *dirs, char *name, char 
 
         while (it)
         {
-            if (it->name[0] > name[0])
+            if (kl_strcmp(it->name, name) > 0)
             {
                 if (prev)
                     prev->next = new_dir;
@@ -111,18 +103,18 @@ static inline struct directory *add_new_dirs_to_end(
     return dirs;
 }
 
-void execute_ls(char *dir_path, t_options options)
+static inline void dir_browsing(
+    struct directory *dirs, t_options options, bool print_dir_path
+)
 {
-    struct dirent *entry;
-    struct directory *dirs = add_directory(NULL, dir_path, dir_path);
-
     bool option_all = options & OPTION_ALL;
     bool option_recursive = options & OPTION_RECURSIVE;
     bool option_long_format = options & OPTION_LONG_FORMAT;
-
     bool is_first_dir = true;
+
     while (dirs)
     {
+        struct dirent *entry;
         struct directory *dir = dirs;
         struct directory *new_dirs = NULL;
 
@@ -146,13 +138,35 @@ void execute_ls(char *dir_path, t_options options)
                 free(path);
         }
 
+        if (is_first_dir == false)
+            print_str_literal("\n");
         if (option_long_format)
-            print_long_format(dir, !is_first_dir);
+            print_long_format(dir, print_dir_path);
         else
-            print_simple(dir, !is_first_dir);
+            print_simple(dir, print_dir_path);
 
         remove_directory(dir);
         dirs = add_new_dirs_to_end(dirs, new_dirs);
+        print_dir_path = true;
         is_first_dir = false;
     }
+}
+
+void execute_ls(char *dir_path, t_options options)
+{
+    struct directory *dirs = add_directory(NULL, dir_path, dir_path);
+
+    dir_browsing(dirs, options, false);
+}
+
+void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options)
+{
+    struct directory *dirs = NULL;
+
+    for (size_t i = 0; i < count_dirs; i++)
+    {
+        char *path = kl_strdup(dir_paths[i]);
+        dirs = add_directory(dirs, path, path);
+    }
+    dir_browsing(dirs, options, true);
 }
