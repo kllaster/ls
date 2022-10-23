@@ -22,6 +22,8 @@ int kl_numlen(long long n)
 {
     int i;
 
+    if (n == 0)
+        return (1);
     i = 0;
     while (n)
     {
@@ -57,7 +59,7 @@ char *kl_itoa(long long n)
 
     len = kl_numlen(n);
     flag = 0;
-    if (n < 0 || !n)
+    if (n < 0)
     {
         if (n < 0)
             flag = 1;
@@ -68,7 +70,7 @@ char *kl_itoa(long long n)
     res = malloc((len + 1) * sizeof(char));
     if (res == NULL)
         return (NULL);
-    res[len] = 0;
+    res[len] = '\0';
     return (kl_getres(res, num, len, flag));
 }
 
@@ -85,6 +87,20 @@ int kl_strncmp(const char *str1, const char *str2, size_t n)
 
     i = 0;
     while ((str1[i] || str2[i]) && n > i)
+    {
+        if ((unsigned char)str1[i] != (unsigned char)str2[i])
+            return ((unsigned char)str1[i] - (unsigned char)str2[i]);
+        ++i;
+    }
+    return (0);
+}
+
+int kl_strcmp(const char *str1, const char *str2)
+{
+    size_t i;
+
+    i = 0;
+    while ((str1[i] || str2[i]))
     {
         if ((unsigned char)str1[i] != (unsigned char)str2[i])
             return ((unsigned char)str1[i] - (unsigned char)str2[i]);

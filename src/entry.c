@@ -47,7 +47,7 @@ static inline void add_entry_in_directory(struct directory *dir, struct entry_in
 
         while (it)
         {
-            if (it->name[0] > name[0])
+            if (kl_strcmp(it->name, name) > 0)
             {
                 if (prev)
                     prev->next = entry_info;
