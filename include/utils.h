@@ -6,7 +6,7 @@
 # include <unistd.h>
 
 # define print_str_literal(str) \
-        write(STDIN_FILENO, (str), sizeof(str) - 1); \
+        write(STDOUT_FILENO, (str), sizeof(str) - 1); \
 
 size_t kl_strlen(const char *str);
 char *kl_strjoin(const char *s1, const char *s2);

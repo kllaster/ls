@@ -10,12 +10,12 @@ size_t kl_strlen(const char *str)
 
 inline void print_str(char *str)
 {
-    write(STDIN_FILENO, str, kl_strlen(str));
+    write(STDOUT_FILENO, str, kl_strlen(str));
 }
 
 inline void print_char(char c)
 {
-    write(STDIN_FILENO, &c, 1);
+    write(STDOUT_FILENO, &c, 1);
 }
 
 int kl_numlen(long long n)

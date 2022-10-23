@@ -72,6 +72,7 @@ static inline void remove_directory(struct directory *dir)
         next = it->next;
 
         free(it->name);
+        free(it);
 
         it = next;
     }
@@ -141,6 +142,8 @@ void execute_ls(char *dir_path, t_options options)
             {
                 new_dirs = add_directory(new_dirs, entry->d_name, path);
             }
+            else
+                free(path);
         }
 
         if (option_long_format)
