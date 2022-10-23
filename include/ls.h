@@ -31,6 +31,7 @@ struct directory
     char *path;
     struct entry_info *entrys;
     t_directory *next;
+    size_t max_name_len;
     size_t max_hard_links_len;
     size_t max_owner_name_len;
     size_t max_group_name_len;

@@ -153,7 +153,7 @@ void print_simple(struct directory *dir, bool show_path)
     while (it)
     {
         print_str(it->name);
-        print_str(" ");
+        print_repeat_char(' ', (dir->max_name_len - kl_strlen(it->name)) + 1);
         count_entrys++;
         it = it->next;
     }

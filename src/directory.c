@@ -20,6 +20,7 @@ struct directory *add_directory(struct directory *dirs, char *name, char *dir_pa
     new_dir->next = NULL;
     new_dir->entrys = NULL;
     new_dir->total_blocks = 0;
+    new_dir->max_name_len = 0;
     new_dir->max_size_len = 0;
     new_dir->max_owner_name_len = 0;
     new_dir->max_group_name_len = 0;
@@ -124,6 +125,13 @@ void dir_browsing(
         {
             if (!(entry->d_name[0] != '.' || option_all))
                 continue;
+
+            if (option_long_format == false)
+            {
+                size_t len = kl_strlen(entry->d_name);
+                if (len > dir->max_name_len)
+                    dir->max_name_len = len;
+            }
 
             char *path = create_path(dir->path, entry->d_name);
             add_entry(dir, entry->d_name, path);
