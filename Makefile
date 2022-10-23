@@ -25,6 +25,7 @@ INC_DIR			= include
 
 SRCS			= src/main.c\
 					src/parser.c\
+					src/browsing.c\
 					src/directory.c\
 					src/entry.c\
 					src/print.c\
