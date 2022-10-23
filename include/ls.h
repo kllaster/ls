@@ -16,6 +16,7 @@
 # define OPTION_RECURSIVE       0b00000010
 # define OPTION_LONG_FORMAT     0b00000100
 # define OPTION_SORT_BY_TIME    0b00001000
+# define OPTION_REVERSE_SORT    0b00010000
 
 typedef int t_options;
 

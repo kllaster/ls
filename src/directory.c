@@ -69,6 +69,7 @@ struct directory *add_dir_in_list(
 )
 {
     t_dir_cmp *dir_cmp;
+    bool option_reverse_sort = options & OPTION_REVERSE_SORT;
 
     if (options & OPTION_SORT_BY_TIME)
         dir_cmp = dir_time_cmp;
@@ -82,7 +83,8 @@ struct directory *add_dir_in_list(
 
         while (it)
         {
-            if (dir_cmp(it, new_dir) > 0)
+            bool cmp_res = dir_cmp(it, new_dir) > 0;
+            if ((cmp_res && !option_reverse_sort) || (!cmp_res && option_reverse_sort))
             {
                 if (prev)
                     prev->next = new_dir;

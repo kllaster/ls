@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     t_options options = parse_options(argc, (const char **)argv);
 
     int count_options = 1;
-    while (count_options < argc && argv[count_options][0] == '-')
+    while (count_options < argc && argv[count_options][0] == '-' && argv[count_options][1] != '\0')
         count_options++;
 
     size_t count_dirs = argc - count_options;

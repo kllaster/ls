@@ -61,6 +61,7 @@ static inline void add_max_fields_len(struct directory *dir, struct entry_info *
 void add_entry_in_directory(struct directory *dir, struct entry_info *entry_info, t_options options)
 {
     t_entry_cmp *entry_cmp;
+    bool option_reverse_sort = options & OPTION_REVERSE_SORT;
 
     if (options & OPTION_SORT_BY_TIME)
         entry_cmp = entry_time_cmp;
@@ -74,7 +75,8 @@ void add_entry_in_directory(struct directory *dir, struct entry_info *entry_info
 
         while (it)
         {
-            if (entry_cmp(it, entry_info) > 0)
+            bool cmp_res = entry_cmp(it, entry_info) > 0;
+            if ((cmp_res && !option_reverse_sort) || (!cmp_res && option_reverse_sort))
             {
                 if (prev)
                     prev->next = entry_info;
