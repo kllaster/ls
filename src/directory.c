@@ -1,6 +1,6 @@
 #include "ls.h"
 
-static struct directory *add_directory(struct directory *dirs, char *name, char *dir_path)
+struct directory *add_directory(struct directory *dirs, char *name, char *dir_path)
 {
     DIR *dir;
     struct directory *new_dir;
@@ -103,7 +103,7 @@ static inline struct directory *add_new_dirs_to_end(
     return dirs;
 }
 
-static inline void dir_browsing(
+void dir_browsing(
     struct directory *dirs, t_options options, bool print_dir_path
 )
 {
@@ -150,23 +150,4 @@ static inline void dir_browsing(
         print_dir_path = true;
         is_first_dir = false;
     }
-}
-
-void execute_ls(char *dir_path, t_options options)
-{
-    struct directory *dirs = add_directory(NULL, dir_path, dir_path);
-
-    dir_browsing(dirs, options, false);
-}
-
-void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_options options)
-{
-    struct directory *dirs = NULL;
-
-    for (size_t i = 0; i < count_dirs; i++)
-    {
-        char *path = kl_strdup(dir_paths[i]);
-        dirs = add_directory(dirs, path, path);
-    }
-    dir_browsing(dirs, options, true);
 }
