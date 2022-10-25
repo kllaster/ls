@@ -24,11 +24,12 @@ static inline void execute_multiple_ls(char **dir_paths, size_t count_dirs, t_op
     while (i < count_dirs)
     {
         s_stat = get_entry_stat(dir_paths[i]);
-        if (s_stat == NULL)
-            continue;
-        char *path = kl_strdup(dir_paths[i]);
-        struct directory *dir = create_directory_info(path, path, s_stat);
-        dirs = add_dir_in_list(dirs, dir, options);
+        if (s_stat != NULL)
+        {
+            char *path = kl_strdup(dir_paths[i]);
+            struct directory *dir = create_directory_info(path, path, s_stat);
+            dirs = add_dir_in_list(dirs, dir, options);
+        }
         i++;
     }
     dir_browsing(dirs, options, i > 1 ?  : false);
